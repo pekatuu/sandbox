@@ -58,17 +58,39 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
+        const audioContext = new AudioContext();
+
+
+
+        function beep(ms) {
+            // オシレーターを作成
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'square'; // 波形の種類を設定
+            oscillator.frequency.value = 440; // ハ(ド)の周波数
+            // オシレーターを再生
+            oscillator.connect(audioContext.destination);
+            oscillator.start();
+
+            // 1秒後に停止
+            setTimeout(() => {
+                oscillator.stop();
+                oscillator.disconnect(audioContext.destination);
+            }, ms);
+        }
+
+
         const _processNumber = (inputs) => {
-            if (!inputs) {
+            if (!inputs.length) {
                 return;
             }
 
             const num = parseInt(inputs[0].value, 10);
-            console.log(`${num}ミリ秒待機します...`);
+            console.log(`${num}秒待機します...`);
 
-            sleep(num)
+            sleep(num * 1000)
                 .then(() => {
-                    navigator.vibrate(500);
+                    beep(500);
+                    window.navigator.vibrate(500);
 
                     inputs.shift();
                     _processNumber(inputs); // 次の数字の処理を呼び出す
@@ -80,7 +102,7 @@
         };
 
         function startCountdown() {
-            const inputs = container.querySelectorAll('input');
+            const inputs = Array.from(container.querySelectorAll('input'));
             _processNumber(inputs)
         };
 
