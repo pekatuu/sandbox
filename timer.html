@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>入力フォーム</title>
+  <style>
+    .input-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .input-group input {
+      width: 50px;
+      padding: 5px;
+    }
+    .input-group button {
+      margin-left: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="input-container"></div>
+  <button id="add-input">+</button>
+  <button id="start">Start</button>
+
+  <script>
+    const container = document.getElementById('input-container');
+    const addButton = document.getElementById('add-input');
+    const startButton = document.getElementById('start');
+
+    addButton.addEventListener('click', addInput);
+    startButton.addEventListener('click', startCountdown);
+
+    function addInput() {
+      const inputGroup = document.createElement('div');
+      inputGroup.classList.add('input-group');
+
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.value = '0';
+
+      const removeButton = document.createElement('button');
+      removeButton.textContent = 'x';
+      removeButton.addEventListener('click', () => {
+        container.removeChild(inputGroup);
+      });
+
+      inputGroup.appendChild(input);
+      inputGroup.appendChild(removeButton);
+      container.appendChild(inputGroup);
+    }
+
+    function startCountdown() {
+      const inputs = container.querySelectorAll('input');
+      const countdowns = Array.from(inputs).map(input => {
+        const seconds = parseInt(input.value, 10);
+        return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+      });
+
+      Promise.all(countdowns)
+        .then(() => {
+          if (navigator.vibrate) {
+            navigator.vibrate(500);
+          } else {
+            console.log('バイブレーション機能はサポートされていません');
+          }
+        })
+        .catch(error => console.error(error));
+    }
+
+    addInput();
+  </script>
+</body>
+</html>
